@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lernaean_server.c                                  :+:      :+:    :+:   */
+/*   proxy_server.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zsmith <zsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,11 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include "includes/ft_printf.h"
+#include <proxy_server.h>
 
 void					error(char *msg)
 {
@@ -38,7 +34,7 @@ int					process_stream(char *buffer, int *newsockfd)
 	} else if (n == 0)
 		return (0);
 	else
-		printf("Here is the message: %s\n", buffer);
+		printf("Here is the message: \n%s", buffer);
 	return (1);
 }
 
@@ -56,9 +52,12 @@ void					wait_for_stream(int socfd)
 	while (1)
 	{	
 		if (0 == process_stream(buffer, &newsockfd))
+		{
+			ft_printf("shutting down server\n");
 			break ;
-		send_to_internet(buffer)
-		n = write(newsockfd, "not today", 10);
+		}
+		// send_to_internet(buffer)
+		n = write(newsockfd, "$ : ", 4);
 		if (n < 0)
 			error("ERROR writing to socket");
 	}
