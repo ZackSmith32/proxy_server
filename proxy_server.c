@@ -23,47 +23,44 @@ void					error(char *msg)
 }
 
 
-void					process_stream(int socfd, char *buffer, int *newsockfd)
+int					process_stream(char *buffer, int *newsockfd)
 {
-	struct sockaddr_in	cli_addr;
-	socklen_t			clilent;
 	int					n;
-
-	clilent = sizeof(cli_addr);
-	*newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &clilent);
+	
 	if (newsockfd < 0)
 		error("ERROR on accept");
 	ft_bzero(buffer, 256);
 	n = read(*newsockfd, buffer, 255);
 	if (n < 0)
+	{
 		error("ERROR reading from socket");
-	printf("Here is the message: %s\n", buffer);
-	
+		return (0);
+	} else if (n == 0)
+		return (0);
+	else
+		printf("Here is the message: %s\n", buffer);
+	return (1);
 }
 
-void					wait_for_stream(int sockfd)
+void					wait_for_stream(int socfd)
 {
 	
 	char				buffer[256];
 	int					n;
-	int					i;
 	int					newsockfd;
+	struct sockaddr_in	cli_addr;
+	socklen_t			cli_len;
 
-	i = 0;
-	while (n < 5)
-	{
-		process_stream(sockfd, buffer, &newsockfd);
-		n++;
-		if (!ft_strncmp(buffer, "ping", 4))
-		{
-			n = write(newsockfd, "pong\n", 5);
-			n = write(newsockfd, "pong\n", 5);
-		}
-		else
-			n = write(newsockfd, "not today", 10);
+	cli_len = sizeof(cli_addr);
+	newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
+	while (1)
+	{	
+		if (0 == process_stream(buffer, &newsockfd))
+			break ;
+		send_to_internet(buffer)
+		n = write(newsockfd, "not today", 10);
 		if (n < 0)
 			error("ERROR writing to socket");
-		i++;
 	}
 }
 
