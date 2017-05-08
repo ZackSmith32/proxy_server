@@ -57,8 +57,8 @@ void					wait_for_stream(int socfd)
 			break ;
 		}
 		// validate_url()
-		// send_to_internet(buffer)
-		send_to_internet();
+		send_to_internet(buffer);
+		// send_to_internet();
 		n = write(newsockfd, "$ : ", 4);
 		if (n < 0)
 			error("ERROR writing to socket");

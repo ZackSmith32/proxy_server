@@ -30,8 +30,9 @@ struct          s_soc_info
 struct          s_url
 {
     char        *url;
-    char        *header
+    char        *header;
 };
 
-void        send_to_internet(void);
+void        send_to_internet(char *addr);
+
 #endif
