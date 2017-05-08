@@ -17,6 +17,21 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #include <ft_printf.h>
 
+struct          s_soc_info
+{
+    int         sockfd;
+    char        buf[2056];
+    int         byte_count;
+};
+
+struct          s_url
+{
+    char        *url;
+    char        *header
+};
+
+void        send_to_internet(void);
 #endif
