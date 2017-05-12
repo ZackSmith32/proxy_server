@@ -6,7 +6,7 @@
 /*   By: zsmith <zsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/02/17 15:50:04 by zsmith           ###   ########.fr       */
+/*   Updated: 2017/05/11 19:39:19 by zsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,22 @@ void        send_to_internet(char *addr)
 
     printf("send_to_internet\n");
     construct_req(&url_struct, addr);
-    printf("header: %s\n", url_struct.header);
     ft_bzero(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    getaddrinfo(url_struct.url, "80", &hints, &res);
+
+	getaddrinfo(addr, "80", &hints, &res);
+
+	printf("addr: %s\n", addr);
+	// printf("ai_family = %d\n", res->ai_family);
+	// printf("ai_socktype = %d\n", res->ai_socktype);
+	// printf("ai_protocol = %d\n", res->ai_protocol);
+	printf("test\n");
+
     sock_info.sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+
     printf("Connecting...\n");
+
     connect(sock_info.sockfd, res->ai_addr, res->ai_addrlen);
     printf("Connected!\n");
     header = ft_strdup("GET /index.html HTTP/1.1\r\nHost: www.google.com\r\n\r\n");
@@ -57,7 +66,3 @@ void        send_to_internet(char *addr)
     printf("recv()'d %d bytes of data in sock_info.buf\n", sock_info.byte_count);
     printf("%s", sock_info.buf);
 }
-
-
-
-

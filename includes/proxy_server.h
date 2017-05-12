@@ -6,7 +6,7 @@
 /*   By: zsmith <zsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/02/17 15:50:04 by zsmith           ###   ########.fr       */
+/*   Updated: 2017/05/11 19:31:30 by zsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <ft_printf.h>
+
+# define STREAM_SIZE 256
 
 struct          s_soc_info
 {

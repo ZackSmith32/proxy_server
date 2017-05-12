@@ -6,7 +6,7 @@
 /*   By: zsmith <zsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/02/17 15:50:04 by zsmith           ###   ########.fr       */
+/*   Updated: 2017/05/11 19:33:20 by zsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,18 @@ void					error(char *msg)
 int					process_stream(char *buffer, int *newsockfd)
 {
 	int					n;
-	
+
 	if (newsockfd < 0)
 		error("ERROR on accept");
-	ft_bzero(buffer, 256);
-	n = read(*newsockfd, buffer, 255);
+	ft_bzero(buffer, STREAM_SIZE + 1);
+	n = read(*newsockfd, buffer, STREAM_SIZE);
+	printf("right after read from socket: %s\n", buffer);
 	if (n < 0)
 	{
 		error("ERROR reading from socket");
 		return (0);
-	} else if (n == 0)
+	}
+	else if (n == 0)
 		return (0);
 	else
 		printf("Here is the message: \n%s", buffer);
@@ -40,17 +42,18 @@ int					process_stream(char *buffer, int *newsockfd)
 
 void					wait_for_stream(int socfd)
 {
-	
-	char				buffer[256];
+
+	char				buffer[STREAM_SIZE + 1];
 	int					n;
 	int					newsockfd;
 	struct sockaddr_in	cli_addr;
 	socklen_t			cli_len;
 
 	cli_len = sizeof(cli_addr);
+	ft_bzero(buffer, STREAM_SIZE + 1);
 	newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
 	while (1)
-	{	
+	{
 		if (0 == process_stream(buffer, &newsockfd))
 		{
 			ft_printf("shutting down server\n");
@@ -73,12 +76,12 @@ int						main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		ft_printf("ERROR, no port provided\n");
+		ft_printf("ERROR: no port provided\n");
 		exit(1);
 	}
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
-		error("ERROR opening socket");
+		error("ERROR: opening socket");
 	ft_bzero((char *)&serv_addr, sizeof(serv_addr));
 	portno = ft_atoi(argv[1]);
 	serv_addr.sin_family = AF_INET;
