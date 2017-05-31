@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   proxy_server.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zsmith <zsmith@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/05/11 19:31:30 by zsmith           ###   ########.fr       */
+/*   Updated: 2017/05/31 15:45:37 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <ft_printf.h>
+#include <stdio.h>			// printf
+#include <stdlib.h>			// bzero, atoi
+#include <unistd.h>			// read
 
 # define STREAM_SIZE 256
 
