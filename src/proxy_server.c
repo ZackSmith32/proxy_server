@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/05/31 15:45:53 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/01 17:46:05 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,25 +22,34 @@ void	error(char *msg)
  *	Receive data stream from client
  *		> remove client specific information
  *		> construct outgoing request
+ *	> reading from sockfd
+ *		> read returns whenever it encounters a nl character
+ *			> it will return the number of bits read, up to max read size
  */
 
 int		process_stream(char *buffer, int *newsockfd)
 {
 	int					n;
+	int					index;
 
 	if (newsockfd < 0)
 		error("ERROR: on accept");
 	bzero(buffer, STREAM_SIZE + 1);
-	n = read(*newsockfd, buffer, STREAM_SIZE);
-	if (n < 0)
+	index = 0;
+	while (1) 
 	{
-		error("ERROR: reading from socket");
-		return (0);
+		n = read(*newsockfd, &(buffer[index]), STREAM_SIZE);
+		index += n;
+		if (n == 0)
+			return (0);
+		else if (n < 0)
+			error("ERROR: reading from socket");
+		// add buffer on to the end of the query str
+		// fuck that for now, lets just do a big buff and get this fucker running
+		printf("~ %s\n", buffer);
 	}
-	else if (n == 0)
-		return (0);
-	else
-		printf("Here is the message: \n%s", buffer);
+	printf("full message: %s\n", buffer);
+
 	return (1);
 }
 
@@ -62,20 +71,18 @@ void	wait_for_stream(int socfd)
 	cli_len = sizeof(cli_addr);
 	bzero(buffer, STREAM_SIZE + 1);
 	newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
-	while (1)
+	
+	if (0 == process_stream(buffer, &newsockfd))
 	{
-		if (0 == process_stream(buffer, &newsockfd))
-		{
-			printf("shutting down server\n");
-			break ;
-		}
-		// validate_url()
+		printf("stream over\n");
 		send_to_internet(buffer);
-		// send_to_internet();
-		n = write(newsockfd, "$ : ", 4);
-		if (n < 0)
-			error("ERROR writing to socket");
 	}
+	// validate_url()
+	// send_to_internet();
+	// n = write(newsockfd, "$ : ", 4);
+	n = 1;
+	if (n < 0)
+		error("ERROR writing to socket");
 }
 
 /*

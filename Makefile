@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: zsmith <zsmith@student.42.fr>              +#+  +:+       +#+         #
+#    By: mba <mba@student.42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/12/14 23:11:31 by zsmith            #+#    #+#              #
-#    Updated: 2017/05/11 12:18:41 by zsmith           ###   ########.fr        #
+#    Updated: 2017/06/01 16:45:34 by mba              ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,7 @@ LDFLAGS	+=	-Llib -lftprintf
 
 CFILES	=	proxy_server.c			\
 			external_communication.c\
+			helpers.c				\
 
 LIBFILES=	libprintf.a
 

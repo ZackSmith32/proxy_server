@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/05/31 15:45:37 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/01 17:27:33 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include <stdlib.h>			// bzero, atoi
 #include <unistd.h>			// read
 
-# define STREAM_SIZE 256
+# define STREAM_SIZE 1024
 
 struct          s_soc_info
 {
@@ -38,5 +38,7 @@ struct          s_url
 };
 
 void        send_to_internet(char *addr);
+char		*ft_strjoin(char const *s1, char const *s2);
+
 
 #endif

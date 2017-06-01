@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/05/31 15:58:04 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/01 16:56:21 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,17 @@
 static void        construct_req(struct s_url *info, char *addr)
 {
     char    *str;
-    // char    *temp;
+    char    *temp;
 
     printf("%s\n", addr);
     info->url = strdup(addr);
     printf("0\n");
     str = strdup("GET /index.html HTTP/1.1\r\nHost: ");
     printf("1\n");
-    // need to find a substitute for strjoin
-    // temp = strjoin(str, addr);
+    temp = ft_strjoin(str, addr);
     printf("2\n");
     free(str);
-    // str = strjoin(temp, "\r\n\r\n");
+    str = ft_strjoin(temp, "\r\n\r\n");
     printf("3\n");
     info->header = str;
 }
@@ -48,8 +47,8 @@ void        send_to_internet(char *addr)
 
 	getaddrinfo(addr, "80", &hints, &res);
 
-	printf("addr: %s\n", addr);
-	// printf("ai_family = %d\n", res->ai_family);
+    printf("addr: %s\n", addr);
+	printf("ai_family = %d\n", res->ai_family);
 	// printf("ai_socktype = %d\n", res->ai_socktype);
 	// printf("ai_protocol = %d\n", res->ai_protocol);
 	printf("test\n");
