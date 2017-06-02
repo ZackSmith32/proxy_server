@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/02 00:13:53 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/02 15:06:08 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <stdio.h>			// printf
 #include <stdlib.h>			// bzero, atoi
 #include <unistd.h>			// read
+#include <h3.h>				// request parsing
 
 # define STREAM_SIZE 1024
 

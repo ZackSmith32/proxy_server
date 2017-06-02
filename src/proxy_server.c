@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/02 00:36:26 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/02 00:57:25 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,12 @@ void	extract_req(char *buf)
 
 /*
  *	> loop to continue listening
+
+	Questions:
+		> what do we use cli_addr for?
+
  */
+
 void	listen_stream(int socfd)
 {
 
@@ -84,6 +89,7 @@ void	listen_stream(int socfd)
 	newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
 	
 	read_stream(buffer, &newsockfd);
+	// todo : add validation to request
 	extract_req(buffer);
 	printf("new buf = %s\n", buffer);
 
