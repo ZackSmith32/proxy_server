@@ -6,28 +6,28 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/01 17:46:05 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/02 00:36:26 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <proxy_server.h>
 
-void	error(char *msg)
-{
-	perror(msg);
-	exit(1);
-}
+
 
 /*
  *	Receive data stream from client
  *		> remove client specific information
  *		> construct outgoing request
  *	> reading from sockfd
- *		> read returns whenever it encounters a nl character
+ *		> telnet
+ *			>read returns whenever it encounters a nl character
  *			> it will return the number of bits read, up to max read size
+ *		> from browser
+ *			> read stops at the end of a request...
+ *			> if you tell read to read on a stream that it finished on,
+ *				read hangs there.
  */
-
-int		process_stream(char *buffer, int *newsockfd)
+int		read_stream(char *buffer, int *newsockfd)
 {
 	int					n;
 	int					index;
@@ -40,30 +40,41 @@ int		process_stream(char *buffer, int *newsockfd)
 	{
 		n = read(*newsockfd, &(buffer[index]), STREAM_SIZE);
 		index += n;
-		if (n == 0)
+		if (n == 0 || n != STREAM_SIZE)
 			return (0);
 		else if (n < 0)
 			error("ERROR: reading from socket");
-		// add buffer on to the end of the query str
-		// fuck that for now, lets just do a big buff and get this fucker running
 		printf("~ %s\n", buffer);
 	}
-	printf("full message: %s\n", buffer);
-
 	return (1);
 }
 
-/*
- *	Create infinite loop that will continue reading from client stream
- *		until client closes the stream.
- *
- */
+void	extract_req(char *buf) 
+{
+	int		i;
 
-void	wait_for_stream(int socfd)
+	i = 0;
+	while (buf[i] != '\n')
+	{
+		if (buf[i] == '\0')
+			error("ERROR: bad request");
+		i++;
+	}
+	while (buf[i] != '\0')
+	{
+		buf[i] = '\0';
+		i++;
+	}
+}
+
+
+/*
+ *	> loop to continue listening
+ */
+void	listen_stream(int socfd)
 {
 
 	char				buffer[STREAM_SIZE + 1];
-	int					n;
 	int					newsockfd;
 	struct sockaddr_in	cli_addr;
 	socklen_t			cli_len;
@@ -72,17 +83,12 @@ void	wait_for_stream(int socfd)
 	bzero(buffer, STREAM_SIZE + 1);
 	newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
 	
-	if (0 == process_stream(buffer, &newsockfd))
-	{
-		printf("stream over\n");
-		send_to_internet(buffer);
-	}
-	// validate_url()
-	// send_to_internet();
+	read_stream(buffer, &newsockfd);
+	extract_req(buffer);
+	printf("new buf = %s\n", buffer);
+
+	send_to_internet(buffer);
 	// n = write(newsockfd, "$ : ", 4);
-	n = 1;
-	if (n < 0)
-		error("ERROR writing to socket");
 }
 
 /*
@@ -90,7 +96,6 @@ void	wait_for_stream(int socfd)
  *	> wait for connections
  *	> on connection fork process
  */
-
 int						main(int argc, char *argv[])
 {
 	int					sockfd;
@@ -117,6 +122,6 @@ int						main(int argc, char *argv[])
 	if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
 		error("ERROR: on binding");
 	listen(sockfd, 5);
-	wait_for_stream(sockfd);
+	listen_stream(sockfd);
 	return (0);
 }

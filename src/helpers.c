@@ -6,11 +6,17 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/06/01 16:37:27 by mba               #+#    #+#             */
-/*   Updated: 2017/06/01 16:48:44 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/02 00:10:59 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <proxy_server.h>
+
+void	error(char *msg)
+{
+	perror(msg);
+	exit(1);
+}
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {
