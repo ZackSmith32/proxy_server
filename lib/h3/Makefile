@@ -1,7 +1,7 @@
 CC = gcc
-# ifeq ($(shell uname),linux)
-# SOURCE_FLAGS = -D_POSIX_SOURCE -D_BSD_SOURCE
-# endif
+ifeq ($(shell uname),linux)
+SOURCE_FLAGS = -D_POSIX_SOURCE -D_BSD_SOURCE
+endif
 
 CFLAGS = -Os -Wall -Wextra -Werror \
 	 $(SOURCE_FLAGS) -g \
@@ -30,7 +30,7 @@ $(EXECUTABLE): parser.o $(LIBH3_A)
 	@gcc -o $(EXECUTABLE) parser.o  $(LIBH3_A) $(CFLAGS) $(LDFLAGS)
 
 $(LIBH3_SO): $(OBJ)
-	@gcc -shared -Wl -o $(LIBH3_SO) $^ $(CFLAGS)
+	@gcc -shared -Wl,-soname,$(LIBH3_SO) -o $(LIBH3_SO) $^ $(CFLAGS)
 
 $(LIBH3_A): $(OBJ)
 	@ar -cr $@ $^

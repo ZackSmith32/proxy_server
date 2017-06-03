@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/02 00:57:25 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/03 15:19:15 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,20 +51,23 @@ int		read_stream(char *buffer, int *newsockfd)
 
 void	extract_req(char *buf) 
 {
-	int		i;
+	RequestHeader *header;
 
-	i = 0;
-	while (buf[i] != '\n')
-	{
-		if (buf[i] == '\0')
-			error("ERROR: bad request");
-		i++;
-	}
-	while (buf[i] != '\0')
-	{
-		buf[i] = '\0';
-		i++;
-	}
+    header = h3_request_header_new();
+    h3_request_header_parse(header, buf, strlen(buf));
+
+    printf("HEADER\n");
+    printf("===========================\n");
+    printf("%s", buf);
+    printf("\n---------------------------\n");
+    printf("Method: %.*s\n", header->RequestMethodLen, header->RequestMethod);
+    printf("Request-URI: %.*s\n", header->RequestURILen, header->RequestURI);
+    printf("HTTP-Version: %.*s\n", header->HTTPVersionLen, header->HTTPVersion);
+    printf("===========================\n");
+
+    h3_request_header_free(header);
+
+	
 }
 
 
