@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/03 15:19:15 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/05 17:04:17 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,14 +46,14 @@ int		read_stream(char *buffer, int *newsockfd)
 			error("ERROR: reading from socket");
 		printf("~ %s\n", buffer);
 	}
+	printf("n = %d\n\n\n", n);
 	return (1);
 }
 
-void	extract_req(char *buf) 
+void	extract_req(char *buf, RequestHeader *header) 
 {
-	RequestHeader *header;
 
-    header = h3_request_header_new();
+    
     h3_request_header_parse(header, buf, strlen(buf));
 
     printf("HEADER\n");
@@ -86,18 +86,18 @@ void	listen_stream(int socfd)
 	int					newsockfd;
 	struct sockaddr_in	cli_addr;
 	socklen_t			cli_len;
+	RequestHeader 		*header;
 
-	cli_len = sizeof(cli_addr);
-	bzero(buffer, STREAM_SIZE + 1);
-	newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
-	
-	read_stream(buffer, &newsockfd);
-	// todo : add validation to request
-	extract_req(buffer);
-	printf("new buf = %s\n", buffer);
-
-	send_to_internet(buffer);
-	// n = write(newsockfd, "$ : ", 4);
+		header = h3_request_header_new();
+		cli_len = sizeof(cli_addr);
+		bzero(buffer, STREAM_SIZE + 1);
+		newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
+		
+		read_stream(buffer, &newsockfd);
+		// todo : add validation to request
+		extract_req(buffer, header);
+		send_to_internet(buffer, header);
+		// n = write(newsockfd, "$ : ", 4);		
 }
 
 /*

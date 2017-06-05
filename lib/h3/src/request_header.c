@@ -45,8 +45,6 @@ const char * h3_request_line_parse(RequestHeader *header, const char *body, int 
     // Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
     const char * p = body;
     header->RequestLineStart = body;
-    bodyLength++;
-    bodyLength--;
 
     while (notend(p) && ! isspace(*p) ) p++;
 

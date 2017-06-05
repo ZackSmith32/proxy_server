@@ -6,7 +6,7 @@
 #    By: mba <mba@student.42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/12/14 23:11:31 by zsmith            #+#    #+#              #
-#    Updated: 2017/06/03 14:49:02 by mba              ###   ########.fr        #
+#    Updated: 2017/06/05 12:13:08 by mba              ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ CFLAGS	=	-Wall -Wextra -Werror
 LDFLAGS =   -Wall -Wextra -Werror
 
 CFLAGS	+=	-I $(HDIR)
-LDFLAGS	+=	-L./lib -lh3
+LDFLAGS	+=	-L. -lh3
 		# -L<dirname> -l<libname without lib prefix>
 
 CFILES	=	proxy_server.c			\

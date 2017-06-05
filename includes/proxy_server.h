@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/02 15:06:08 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/05 14:36:21 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ struct          s_soc_info
     int         byte_count;
 };
 
-void        send_to_internet(char *addr);
+void        send_to_internet(char *buf, RequestHeader *header);
 void		error(char *msg);
 char		*ft_strjoin(char const *s1, char const *s2);
 
