@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/05 17:04:17 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/06 11:32:59 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ int		read_stream(char *buffer, int *newsockfd)
 			return (0);
 		else if (n < 0)
 			error("ERROR: reading from socket");
-		printf("~ %s\n", buffer);
+		// printf("~ %s\n", buffer);
 	}
 	printf("n = %d\n\n\n", n);
 	return (1);
@@ -63,9 +63,11 @@ void	extract_req(char *buf, RequestHeader *header)
     printf("Method: %.*s\n", header->RequestMethodLen, header->RequestMethod);
     printf("Request-URI: %.*s\n", header->RequestURILen, header->RequestURI);
     printf("HTTP-Version: %.*s\n", header->HTTPVersionLen, header->HTTPVersion);
+    printf("header size = %d\n", header->HeaderSize);
+    printf("FieldName[0]: %s\n", (header->Fields[0]).FieldName);
     printf("===========================\n");
 
-    h3_request_header_free(header);
+    // h3_request_header_free(header);
 
 	
 }
@@ -96,7 +98,10 @@ void	listen_stream(int socfd)
 		read_stream(buffer, &newsockfd);
 		// todo : add validation to request
 		extract_req(buffer, header);
+		printf("here\n");
 		send_to_internet(buffer, header);
+		// send_to_internet();
+
 		// n = write(newsockfd, "$ : ", 4);		
 }
 
