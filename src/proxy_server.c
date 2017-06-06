@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/06 11:32:59 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/06 12:42:00 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ void	listen_stream(int socfd)
 		read_stream(buffer, &newsockfd);
 		// todo : add validation to request
 		extract_req(buffer, header);
-		printf("here\n");
+		
 		send_to_internet(buffer, header);
 		// send_to_internet();
 

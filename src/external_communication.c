@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/06 11:59:12 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/06 12:58:49 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,11 @@ void		trim_uri(char *uri, int len) {
 
 char *generate_out_header(RequestHeader *h) {
 	// char	*request_line;
-	char	*host_line;
-	int		host_len = 0;
+	char	*req_line;
+	int		req_len = 0;
 	char	*header_field;
 	unsigned int		i = 0;
 
-	printf("generate_ot_header headerSize = %d\n", h->HeaderSize);
 	/*
 	 *	minus 1 because the header size includes the get request, but the "Fields"
 	 *		property does not
@@ -54,18 +53,21 @@ char *generate_out_header(RequestHeader *h) {
 		header_field = (char *)h->Fields[i].FieldName;
 		printf("i = %d, len = %d, header_field = %.*s\n",i,  h->Fields[i].FieldNameLen, h->Fields[i].FieldNameLen, header_field);
 		if (strncmp(header_field, "Host:", 5) == 0) {
-			printf("********************************************************************\n");
-			printf("value = %.*s, len = %d\n", h->Fields[i].ValueLen, h->Fields[i].Value, h->Fields[i].ValueLen);
-			host_len = h->Fields[i].FieldNameLen + h->Fields[i].ValueLen + 2 + 1;
-			host_line = (char *)malloc(host_len);
-			bzero(host_line, host_len);
-			strncpy(host_line, h->Fields[i].FieldName, host_len - 1);
+			break ;
 		}
 		i++;
 	}
 	printf("out of while\n");
-	printf("\nlen = %d, headerField host = %s<\n\n", host_len, host_line);
-	return (host_line);
+	req_len = h->Fields[i + 1].FieldName - h->RequestLineStart + 1;
+	printf("req_len = %d\n", req_len);
+	req_line = (char *)malloc(req_len);
+	bzero(req_line, req_len);
+	strncpy(req_line, h->RequestLineStart, req_len - 1);
+	char *rs;
+	rs = ft_strjoin(req_line, "\r\n");
+	free(req_line);
+
+	return (rs);
 }
 
 void        send_to_internet(char *buf, RequestHeader *header)
@@ -75,10 +77,7 @@ void        send_to_internet(char *buf, RequestHeader *header)
 	struct s_soc_info   sock_info;
 	char                *req_uri;
 	// char             *header;
-
-	buf[0] = 0;
-	header->HeaderSize++;
-
+	buf[0] = buf[0];
 	bzero(&hints, sizeof(struct addrinfo));
 	(hints).ai_family = AF_UNSPEC;
 	(hints).ai_socktype = SOCK_STREAM;
@@ -104,12 +103,12 @@ void        send_to_internet(char *buf, RequestHeader *header)
 	printf("Connected!\n");
 
 
-	char *req = strdup("GET http://www.pittsburghpostgazette.com/ HTTP/1.1\r\nHost: www.pittsburghpostgazette.com\r\n\r\n");
+	// char *req = strdup("GET http://www.pittsburghpostgazette.com/ HTTP/1.1\r\nHost: www.pittsburghpostgazette.com\r\n\r\n");
 	// printf("after strdup\n");
 	char *out_header;
 	// printf("headerSize = %d\n", header->HeaderSize);
 	out_header = generate_out_header(header);
-	send(sock_info.sockfd, req, strlen(req), 0);
+	send(sock_info.sockfd, out_header, strlen(out_header), 0);
 	printf("after send\n");
 
 	sock_info.byte_count = recv(sock_info.sockfd, sock_info.buf, sizeof(sock_info.buf) - 1, 0);
