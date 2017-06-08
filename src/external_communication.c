@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/06 12:58:49 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/08 11:34:05 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,14 +70,40 @@ char *generate_out_header(RequestHeader *h) {
 	return (rs);
 }
 
-void        send_to_internet(char *buf, RequestHeader *header)
+void		send_req(RequestHeader *header, struct s_soc_info *sock_info) {
+	char		*out_header;
+	char		response[STREAM_SIZE];
+	int			res_size = 0;
+	char		*temp;
+
+	out_header = generate_out_header(header);
+	// send(sock_info->sockfd, out_header, strlen(out_header), 0);
+	send(sock_info->sockfd, out_header, strlen(out_header), 0);
+	printf("request sent..\n");
+
+	while ((res_size = recv(sock_info->sockfd,
+				response, STREAM_SIZE - 1, 0)))
+	{
+		printf("res_size = %d\n", res_size);
+		sock_info->byte_count += res_size;
+		temp = sock_info->buf;
+		sock_info->buf = ft_strjoin(sock_info->buf, response);
+		free(temp);
+		if (res_size != STREAM_SIZE - 1)
+			break ;
+	}
+
+	printf("recv()'d %d bytes of data in sock_info.buf\n", sock_info->byte_count);
+}
+
+char		*connect_to_host(RequestHeader *header)
 {
 	struct addrinfo     hints;
 	struct addrinfo     *res;
 	struct s_soc_info   sock_info;
 	char                *req_uri;
-	// char             *header;
-	buf[0] = buf[0];
+	int 				rv;
+
 	bzero(&hints, sizeof(struct addrinfo));
 	(hints).ai_family = AF_UNSPEC;
 	(hints).ai_socktype = SOCK_STREAM;
@@ -88,36 +114,22 @@ void        send_to_internet(char *buf, RequestHeader *header)
 	trim_uri(req_uri, header->RequestURILen);
 	printf("trimmed = %s\n", req_uri);
   
-  	printf("after trimmed\n");
-	int rv;
-	if ((rv = getaddrinfo(req_uri, "http", &hints, &res)) != 0) {
+	// if ((rv = getaddrinfo(req_uri, "http", &hints, &res)) != 0) {
+	if ((rv = getaddrinfo("www.qst0.com", "http", &hints, &res)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		exit(1);
 	}	
-	printf("after get addr info\n");
 
-
+	bzero(&sock_info, sizeof(sock_info));
+	sock_info.buf = (char *)malloc(1);
+	sock_info.buf[0] = 0;
 	sock_info.sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	printf("Connecting...\n");
 	connect(sock_info.sockfd, res->ai_addr, res->ai_addrlen);
 	printf("Connected!\n");
-
-
-	// char *req = strdup("GET http://www.pittsburghpostgazette.com/ HTTP/1.1\r\nHost: www.pittsburghpostgazette.com\r\n\r\n");
-	// printf("after strdup\n");
-	char *out_header;
-	// printf("headerSize = %d\n", header->HeaderSize);
-	out_header = generate_out_header(header);
-	send(sock_info.sockfd, out_header, strlen(out_header), 0);
-	printf("after send\n");
-
-	sock_info.byte_count = recv(sock_info.sockfd, sock_info.buf, sizeof(sock_info.buf) - 1, 0);
-	sock_info.buf[sock_info.byte_count] = '\0';
-
-
-	printf("recv()'d %d bytes of data in sock_info.buf\n", sock_info.byte_count);
-	printf("%s", sock_info.buf);
-
+	send_req(header, &sock_info);
+	
+	return (sock_info.buf);
 }
 
 

@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/06 12:42:00 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/08 11:34:43 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,8 @@ void	listen_stream(int socfd)
 	struct sockaddr_in	cli_addr;
 	socklen_t			cli_len;
 	RequestHeader 		*header;
+	char				*res_buf;
+	int					n;
 
 		header = h3_request_header_new();
 		cli_len = sizeof(cli_addr);
@@ -98,11 +100,13 @@ void	listen_stream(int socfd)
 		read_stream(buffer, &newsockfd);
 		// todo : add validation to request
 		extract_req(buffer, header);
-		
-		send_to_internet(buffer, header);
-		// send_to_internet();
-
-		// n = write(newsockfd, "$ : ", 4);		
+		/*
+		 *	header now contains all references to the buffer
+		 */
+		res_buf = connect_to_host(header);
+		printf("res_buf = %s\n", res_buf);
+		n = write(newsockfd, res_buf, strlen(res_buf));
+		printf("n = %d", n);		
 }
 
 /*

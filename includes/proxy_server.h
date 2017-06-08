@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/06 11:33:16 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/06 13:57:14 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@
 struct          s_soc_info
 {
     int         sockfd;
-    char        buf[STREAM_SIZE];
+    char        *buf;
     int         byte_count;
 };
 
-void        send_to_internet(char *buf, RequestHeader *header);
+char		*connect_to_host(RequestHeader *header);
 // void        send_to_internet();
 void		error(char *msg);
 char		*ft_strjoin(char const *s1, char const *s2);
