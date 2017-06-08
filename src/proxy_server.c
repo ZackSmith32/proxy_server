@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/08 11:34:43 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/08 19:12:26 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,11 +92,12 @@ void	listen_stream(int socfd)
 	char				*res_buf;
 	int					n;
 
-		header = h3_request_header_new();
-		cli_len = sizeof(cli_addr);
-		bzero(buffer, STREAM_SIZE + 1);
+	cli_len = sizeof(cli_addr);
 		newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
-		
+		header = h3_request_header_new();
+		bzero(buffer, STREAM_SIZE + 1);
+	while (1) 
+	{
 		read_stream(buffer, &newsockfd);
 		// todo : add validation to request
 		extract_req(buffer, header);
@@ -105,8 +106,10 @@ void	listen_stream(int socfd)
 		 */
 		res_buf = connect_to_host(header);
 		printf("res_buf = %s\n", res_buf);
-		n = write(newsockfd, res_buf, strlen(res_buf));
+		n = write(newsockfd, res_buf, strlen(res_buf) + 1);
 		printf("n = %d", n);		
+		
+	}
 }
 
 /*

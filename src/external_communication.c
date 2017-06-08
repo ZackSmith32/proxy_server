@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/08 11:34:05 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/08 19:09:26 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ void		trim_uri(char *uri, int len) {
 		uri[len] = 0;
 		len--;
 	}
+	if (uri[i - 1] == '/')
+		uri[i - 1] = '\0';
 	printf("len = %d\n", len);
 
 
@@ -84,9 +86,11 @@ void		send_req(RequestHeader *header, struct s_soc_info *sock_info) {
 	while ((res_size = recv(sock_info->sockfd,
 				response, STREAM_SIZE - 1, 0)))
 	{
+		response[res_size] = 0;
+		response[res_size - 1] = 0;
 		printf("res_size = %d\n", res_size);
-		sock_info->byte_count += res_size;
 		temp = sock_info->buf;
+		sock_info->byte_count += res_size;
 		sock_info->buf = ft_strjoin(sock_info->buf, response);
 		free(temp);
 		if (res_size != STREAM_SIZE - 1)
@@ -114,8 +118,7 @@ char		*connect_to_host(RequestHeader *header)
 	trim_uri(req_uri, header->RequestURILen);
 	printf("trimmed = %s\n", req_uri);
   
-	// if ((rv = getaddrinfo(req_uri, "http", &hints, &res)) != 0) {
-	if ((rv = getaddrinfo("www.qst0.com", "http", &hints, &res)) != 0) {
+	if ((rv = getaddrinfo(req_uri, "http", &hints, &res)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		exit(1);
 	}	
@@ -131,9 +134,6 @@ char		*connect_to_host(RequestHeader *header)
 	
 	return (sock_info.buf);
 }
-
-
-
 
 
 
