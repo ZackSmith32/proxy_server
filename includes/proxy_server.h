@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/12 12:44:29 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/14 12:28:27 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,10 @@ struct          s_soc_info
     int         byte_count;
 };
 
-void	connect_to_host(RequestHeader *header, int header_size, struct s_soc_info *soc_info);
+// void	connect_to_host(RequestHeader *header, int header_size, struct s_soc_info *soc_info);
+void	connect_to_host(RequestHeader *header, int header_size, 
+			struct s_soc_info *soc_info, int newsockfd);
+
 // void        send_to_internet();
 void		error(char *msg);
 char		*ft_strjoin(char const *s1, char const *s2);

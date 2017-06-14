@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/12 15:58:43 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/14 12:53:55 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,39 +43,38 @@ char *generate_out_header(RequestHeader *h) {
 	return (rs);
 }
 
-void		send_req(RequestHeader *header, struct s_soc_info *sock_info, int header_size) {
-	// char		*out_header;
-	char		response[STREAM_SIZE + 1];
+void		send_req(RequestHeader *header, struct s_soc_info *sock_info, int header_size, int newsockfd) {
+	char		response[STREAM_SIZE];
 	int			res_size = 0;
-	char		*temp;
+	int			n;
 
-	// out_header = generate_out_header(header);
-	// send(sock_info->sockfd, out_header, strlen(out_header), 0);
-	// printf("*********************************\n");
-	// printf("sending:\n");
-	// printf("%*s", header->HeaderSize, header->RequestLineStart);
-	// printf("*********************************\n");
 	send(sock_info->sockfd, header->RequestLineStart, header_size, 0);
 	printf("request sent..\n");
-	bzero(response, STREAM_SIZE + 1);
-	while ((res_size = recv(sock_info->sockfd,
-				response, STREAM_SIZE, 0)))
+	while (1)
 	{
+		res_size = recv(sock_info->sockfd, response, STREAM_SIZE, 0);
+		if (res_size == -1)
+		{
+			error("ERROR receiving response");
+		} 
+		else if (res_size == 0)
+		{
+			// write bufferlpp0pp0,00l0k-kkkk-k,/`ll
+			return ;
+		}
+
+		if (res_size > 0) {
+			status = str_append()
+		}
 		printf("res_size = %d\n", res_size);
-		temp = sock_info->buf;
-		sock_info->byte_count += res_size;
-		sock_info->buf = ft_strjoin(sock_info->buf, response);
-		free(temp);
-		if (res_size != STREAM_SIZE)
-			break ;
-		else
-			bzero(response, STREAM_SIZE + 1);
-	
+		printf("%s\n", response);
+		n = write(newsockfd, response, res_size);
+
 	}
 	printf("recv()'d %d bytes of data in sock_info.buf\n", (int)sock_info->byte_count);
 }
 
-void	connect_to_host(RequestHeader *header, int header_size, struct s_soc_info *soc_info)
+void	connect_to_host(RequestHeader *header, int header_size, struct s_soc_info *soc_info, int newsockfd)
 {
 	struct addrinfo     hints;
 	struct addrinfo     *res;
@@ -105,7 +104,7 @@ void	connect_to_host(RequestHeader *header, int header_size, struct s_soc_info *
 	connect(soc_info->sockfd, res->ai_addr, res->ai_addrlen);
 	printf("Connected!\n");
 	header_size++;
-	send_req(header, soc_info, header_size);
+	send_req(header, soc_info, header_size, newsockfd);
 	
 }
 

@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/14 11:47:26 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/14 11:22:08 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ void	listen_stream(int socfd)
 	RequestHeader 		*header;
 	struct s_soc_info   soc_info;
 	int					bytes;
-	int					n;
+	// int					n;
 
 	cli_len = sizeof(cli_addr);
 	newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
@@ -105,12 +105,10 @@ void	listen_stream(int socfd)
 		/*
 		 *	header now contains all references to the buffer
 		 */
-		connect_to_host(header, bytes, &soc_info);
+		connect_to_host(header, bytes, &soc_info, newsockfd);
 		printf("%s\n", soc_info.buf);
 		// printf("res_buf = %s\n", res_buf);
-		n = write(newsockfd, soc_info.buf, soc_info.byte_count);
 		// printf("n = %d\n", n);
-		break ;
 		printf("***************************\n");		
 		
 	}
