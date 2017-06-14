@@ -6,38 +6,11 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/08 19:09:26 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/12 15:58:43 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <proxy_server.h>
-
-void		trim_uri(char *uri, int len) {
-	char		*pattern = "http://";
-	int			i = 0;
-
-	printf("len = %d\n", len);
-	if (len < 7) {
-		printf("early return len = %d\n", len);
-		return ;
-	}
-	while (i + 7 < len) {
-		if (i < 7 && uri[i] != pattern[i])
-			error("ERROR: path does not include 'http://'");
-		uri[i] = uri[i + 7];
-		i++;
-	}
-	len -= 1;
-	while (len >= i) {
-		uri[len] = 0;
-		len--;
-	}
-	if (uri[i - 1] == '/')
-		uri[i - 1] = '\0';
-	printf("len = %d\n", len);
-
-
-}
 
 char *generate_out_header(RequestHeader *h) {
 	// char	*request_line;
@@ -53,15 +26,13 @@ char *generate_out_header(RequestHeader *h) {
 	while (i < h->HeaderSize - 1) {
 
 		header_field = (char *)h->Fields[i].FieldName;
-		printf("i = %d, len = %d, header_field = %.*s\n",i,  h->Fields[i].FieldNameLen, h->Fields[i].FieldNameLen, header_field);
 		if (strncmp(header_field, "Host:", 5) == 0) {
 			break ;
 		}
 		i++;
 	}
-	printf("out of while\n");
 	req_len = h->Fields[i + 1].FieldName - h->RequestLineStart + 1;
-	printf("req_len = %d\n", req_len);
+	// printf("req_len = %d\n", req_len);
 	req_line = (char *)malloc(req_len);
 	bzero(req_line, req_len);
 	strncpy(req_line, h->RequestLineStart, req_len - 1);
@@ -72,67 +43,70 @@ char *generate_out_header(RequestHeader *h) {
 	return (rs);
 }
 
-void		send_req(RequestHeader *header, struct s_soc_info *sock_info) {
-	char		*out_header;
-	char		response[STREAM_SIZE];
+void		send_req(RequestHeader *header, struct s_soc_info *sock_info, int header_size) {
+	// char		*out_header;
+	char		response[STREAM_SIZE + 1];
 	int			res_size = 0;
 	char		*temp;
 
-	out_header = generate_out_header(header);
+	// out_header = generate_out_header(header);
 	// send(sock_info->sockfd, out_header, strlen(out_header), 0);
-	send(sock_info->sockfd, out_header, strlen(out_header), 0);
+	// printf("*********************************\n");
+	// printf("sending:\n");
+	// printf("%*s", header->HeaderSize, header->RequestLineStart);
+	// printf("*********************************\n");
+	send(sock_info->sockfd, header->RequestLineStart, header_size, 0);
 	printf("request sent..\n");
-
+	bzero(response, STREAM_SIZE + 1);
 	while ((res_size = recv(sock_info->sockfd,
-				response, STREAM_SIZE - 1, 0)))
+				response, STREAM_SIZE, 0)))
 	{
-		response[res_size] = 0;
-		response[res_size - 1] = 0;
 		printf("res_size = %d\n", res_size);
 		temp = sock_info->buf;
 		sock_info->byte_count += res_size;
 		sock_info->buf = ft_strjoin(sock_info->buf, response);
 		free(temp);
-		if (res_size != STREAM_SIZE - 1)
+		if (res_size != STREAM_SIZE)
 			break ;
+		else
+			bzero(response, STREAM_SIZE + 1);
+	
 	}
-
-	printf("recv()'d %d bytes of data in sock_info.buf\n", sock_info->byte_count);
+	printf("recv()'d %d bytes of data in sock_info.buf\n", (int)sock_info->byte_count);
 }
 
-char		*connect_to_host(RequestHeader *header)
+void	connect_to_host(RequestHeader *header, int header_size, struct s_soc_info *soc_info)
 {
 	struct addrinfo     hints;
 	struct addrinfo     *res;
-	struct s_soc_info   sock_info;
-	char                *req_uri;
+	
 	int 				rv;
 
 	bzero(&hints, sizeof(struct addrinfo));
-	(hints).ai_family = AF_UNSPEC;
-	(hints).ai_socktype = SOCK_STREAM;
-
-	req_uri = (char *)malloc(header->RequestURILen + 1);
-	bzero(req_uri, header->RequestURILen + 1);
-	strncpy(req_uri, header->RequestURI, header->RequestURILen);
-	trim_uri(req_uri, header->RequestURILen);
-	printf("trimmed = %s\n", req_uri);
-  
-	if ((rv = getaddrinfo(req_uri, "http", &hints, &res)) != 0) {
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	printf("hints\n");
+  	char *host;
+  	host = (char *)malloc(header->Fields[0].ValueLen + 1);
+  	bzero(host, header->Fields[0].ValueLen + 1);
+  	strncpy(host, header->Fields[0].Value, header->Fields[0].ValueLen);
+  	printf("host = %s\n", host);
+	if ((rv = getaddrinfo(host, "http", &hints, &res)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		exit(1);
 	}	
-
-	bzero(&sock_info, sizeof(sock_info));
-	sock_info.buf = (char *)malloc(1);
-	sock_info.buf[0] = 0;
-	sock_info.sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	bzero(soc_info, sizeof(soc_info));
+	soc_info->buf = (char *)malloc(1);
+	soc_info->buf[0] = 0;
+	soc_info->byte_count = 0;
+	printf("res \n");
+	soc_info->sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	printf("Connecting...\n");
-	connect(sock_info.sockfd, res->ai_addr, res->ai_addrlen);
+	connect(soc_info->sockfd, res->ai_addr, res->ai_addrlen);
 	printf("Connected!\n");
-	send_req(header, &sock_info);
+	header_size++;
+	send_req(header, soc_info, header_size);
 	
-	return (sock_info.buf);
 }
 
 

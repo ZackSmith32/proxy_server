@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/08 19:12:26 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/12 16:01:02 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,24 +30,22 @@
 int		read_stream(char *buffer, int *newsockfd)
 {
 	int					n;
-	int					index;
+	int					bytes;
 
-	if (newsockfd < 0)
-		error("ERROR: on accept");
+	
 	bzero(buffer, STREAM_SIZE + 1);
-	index = 0;
+	bytes = 0;
 	while (1) 
 	{
-		n = read(*newsockfd, &(buffer[index]), STREAM_SIZE);
-		index += n;
-		if (n == 0 || n != STREAM_SIZE)
-			return (0);
+		printf("read stream\n");
+		n = read(*newsockfd, &(buffer[bytes]), STREAM_SIZE);
+		bytes += n;
+		if (n != STREAM_SIZE)
+			return (bytes);
 		else if (n < 0)
 			error("ERROR: reading from socket");
-		// printf("~ %s\n", buffer);
 	}
-	printf("n = %d\n\n\n", n);
-	return (1);
+	return (-1);
 }
 
 void	extract_req(char *buf, RequestHeader *header) 
@@ -64,7 +62,7 @@ void	extract_req(char *buf, RequestHeader *header)
     printf("Request-URI: %.*s\n", header->RequestURILen, header->RequestURI);
     printf("HTTP-Version: %.*s\n", header->HTTPVersionLen, header->HTTPVersion);
     printf("header size = %d\n", header->HeaderSize);
-    printf("FieldName[0]: %s\n", (header->Fields[0]).FieldName);
+    printf("FieldName[0]: %.*s\n", (header->Fields[0]).FieldNameLen, (header->Fields[0]).FieldName);
     printf("===========================\n");
 
     // h3_request_header_free(header);
@@ -83,31 +81,37 @@ void	extract_req(char *buf, RequestHeader *header)
 
 void	listen_stream(int socfd)
 {
-
 	char				buffer[STREAM_SIZE + 1];
 	int					newsockfd;
 	struct sockaddr_in	cli_addr;
 	socklen_t			cli_len;
 	RequestHeader 		*header;
-	char				*res_buf;
+	struct s_soc_info   soc_info;
+	int					bytes;
 	int					n;
 
 	cli_len = sizeof(cli_addr);
-		newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
-		header = h3_request_header_new();
-		bzero(buffer, STREAM_SIZE + 1);
+	newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
+	if (newsockfd < 0)
+		error("ERROR: on accept");
+	header = h3_request_header_new();
+	bzero(buffer, STREAM_SIZE + 1);
 	while (1) 
 	{
-		read_stream(buffer, &newsockfd);
+		printf("***************************\n");
+		bytes = read_stream(buffer, &newsockfd);
 		// todo : add validation to request
 		extract_req(buffer, header);
 		/*
 		 *	header now contains all references to the buffer
 		 */
-		res_buf = connect_to_host(header);
-		printf("res_buf = %s\n", res_buf);
-		n = write(newsockfd, res_buf, strlen(res_buf) + 1);
-		printf("n = %d", n);		
+		connect_to_host(header, bytes, &soc_info);
+		printf("%s\n", soc_info.buf);
+		// printf("res_buf = %s\n", res_buf);
+		n = write(newsockfd, soc_info.buf, soc_info.byte_count);
+		// printf("n = %d\n", n);
+		break ;
+		printf("***************************\n");		
 		
 	}
 }
@@ -142,7 +146,31 @@ int						main(int argc, char *argv[])
 
 	if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
 		error("ERROR: on binding");
+	printf("WTF\n");
 	listen(sockfd, 5);
 	listen_stream(sockfd);
 	return (0);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
