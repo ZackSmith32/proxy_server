@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/06/01 16:37:27 by mba               #+#    #+#             */
-/*   Updated: 2017/06/02 00:10:59 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/18 21:28:02 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,23 @@ void	error(char *msg)
 {
 	perror(msg);
 	exit(1);
+}
+
+int		buffer_append(char **buf, char *data, int data_size)
+{
+	char	*temp = 0;
+	int		buf_size;
+
+	buf_size = strlen(*buf);
+	temp = *buf;
+	*buf = (char *)malloc(buf_size + data_size + 1);
+	if (buf == 0)
+		error("ERROR: error appending to buffer\n");
+	(*buf)[buf_size + data_size] = 0;
+	memmove(*buf, temp, buf_size);
+	memmove(*buf + buf_size, data, data_size);
+	free(temp);
+	return (buf_size + data_size);
 }
 
 char	*ft_strjoin(char const *s1, char const *s2)

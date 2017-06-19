@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/14 12:28:27 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/18 20:43:36 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ void	connect_to_host(RequestHeader *header, int header_size,
 // void        send_to_internet();
 void		error(char *msg);
 char		*ft_strjoin(char const *s1, char const *s2);
+int			buffer_append(char **buf, char *data, int data_size);
+
 
 
 #endif

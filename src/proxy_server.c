@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/14 11:22:08 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/18 22:03:18 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,23 +27,27 @@
  *			> if you tell read to read on a stream that it finished on,
  *				read hangs there.
  */
-int		read_stream(char *buffer, int *newsockfd)
+int		read_stream(char **buffer, int *newsockfd)
 {
-	int					n;
-	int					bytes;
+	int					data_size;
+	int					buff_size;
+	char				data[STREAM_SIZE + 1];
 
 	
-	bzero(buffer, STREAM_SIZE + 1);
-	bytes = 0;
+	bzero(data, STREAM_SIZE + 1);
+	buff_size = 0;
 	while (1) 
 	{
 		printf("read stream\n");
-		n = read(*newsockfd, &(buffer[bytes]), STREAM_SIZE);
-		bytes += n;
-		if (n != STREAM_SIZE)
-			return (bytes);
-		else if (n < 0)
+		data_size = read(*newsockfd, data, STREAM_SIZE);
+		printf("request bytes = %d\n", data_size);
+		if (data_size < 0)
 			error("ERROR: reading from socket");
+		buffer_append(buffer, data, data_size);
+		printf("after buffer append\n");
+		buff_size += data_size;
+		if (data_size != STREAM_SIZE)
+			return (buff_size);
 	}
 	return (-1);
 }
@@ -81,32 +85,36 @@ void	extract_req(char *buf, RequestHeader *header)
 
 void	listen_stream(int socfd)
 {
-	char				buffer[STREAM_SIZE + 1];
+	char				*buffer;
 	int					newsockfd;
 	struct sockaddr_in	cli_addr;
 	socklen_t			cli_len;
 	RequestHeader 		*header;
 	struct s_soc_info   soc_info;
-	int					bytes;
+	int					buffer_len;
 	// int					n;
 
+	buffer = (char *)malloc(1);
+	buffer[0] = 0;
 	cli_len = sizeof(cli_addr);
 	newsockfd = accept(socfd, (struct sockaddr *)&cli_addr, &cli_len);
 	if (newsockfd < 0)
 		error("ERROR: on accept");
 	header = h3_request_header_new();
-	bzero(buffer, STREAM_SIZE + 1);
+	// bzero(buffer, STREAM_SIZE + 1);
 	while (1) 
 	{
 		printf("***************************\n");
-		bytes = read_stream(buffer, &newsockfd);
+		buffer_len = read_stream(&buffer, &newsockfd);
+		printf("read: %s\n", buffer);
+
 		// todo : add validation to request
 		extract_req(buffer, header);
 		/*
 		 *	header now contains all references to the buffer
 		 */
-		connect_to_host(header, bytes, &soc_info, newsockfd);
-		printf("%s\n", soc_info.buf);
+		connect_to_host(header, buffer_len, &soc_info, newsockfd);
+		// printf("%s\n", soc_info.buf);
 		// printf("res_buf = %s\n", res_buf);
 		// printf("n = %d\n", n);
 		printf("***************************\n");		

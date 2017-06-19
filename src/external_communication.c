@@ -6,7 +6,7 @@
 /*   By: mba <mba@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/17 15:17:05 by zsmith            #+#    #+#             */
-/*   Updated: 2017/06/14 12:53:55 by mba              ###   ########.fr       */
+/*   Updated: 2017/06/18 22:15:24 by mba              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,42 +43,50 @@ char *generate_out_header(RequestHeader *h) {
 	return (rs);
 }
 
-void		send_req(RequestHeader *header, struct s_soc_info *sock_info, int header_size, int newsockfd) {
-	char		response[STREAM_SIZE];
-	int			res_size = 0;
-	int			n;
+/*
+ *	Questions:
+ *		what is the maximum size of a http response
+ *		should you "recv" in a loop?  if so when do you know to stop?
+ *			should I just read instead of recv
+ */
 
-	send(sock_info->sockfd, header->RequestLineStart, header_size, 0);
+void		send_req(RequestHeader *header, struct s_soc_info *soc_info, int header_size, 
+				int newsockfd) {
+
+	int			n;
+	int			i = 1;
+	char		response[STREAM_SIZE + 1];
+	int			res_size = 0;
+
+	send(soc_info->sockfd, header->RequestLineStart, header_size, 0);
 	printf("request sent..\n");
 	while (1)
 	{
-		res_size = recv(sock_info->sockfd, response, STREAM_SIZE, 0);
+		bzero(response, STREAM_SIZE + 1);
+		res_size = recv(soc_info->sockfd, response, STREAM_SIZE, 0);
+		printf("response read #%d\n", i);
+		printf("res_size = %d\n", res_size);
+		printf("%s\n", response);
 		if (res_size == -1)
 		{
 			error("ERROR receiving response");
 		} 
-		else if (res_size == 0)
-		{
-			// write bufferlpp0pp0,00l0k-kkkk-k,/`ll
-			return ;
-		}
-
 		if (res_size > 0) {
-			status = str_append()
+			buffer_append(&(soc_info->buf), response, res_size);
+			soc_info->byte_count += res_size;
 		}
-		printf("res_size = %d\n", res_size);
-		printf("%s\n", response);
-		n = write(newsockfd, response, res_size);
-
+		n = write(newsockfd, soc_info->buf, soc_info->byte_count);
+		return ;
+		i++;
 	}
-	printf("recv()'d %d bytes of data in sock_info.buf\n", (int)sock_info->byte_count);
+	printf("recv()'d %d bytes of data in soc_info.buf\n", (int)soc_info->byte_count);
 }
 
 void	connect_to_host(RequestHeader *header, int header_size, struct s_soc_info *soc_info, int newsockfd)
 {
 	struct addrinfo     hints;
 	struct addrinfo     *res;
-	
+	// int					n;
 	int 				rv;
 
 	bzero(&hints, sizeof(struct addrinfo));
@@ -98,14 +106,12 @@ void	connect_to_host(RequestHeader *header, int header_size, struct s_soc_info *
 	soc_info->buf = (char *)malloc(1);
 	soc_info->buf[0] = 0;
 	soc_info->byte_count = 0;
-	printf("res \n");
 	soc_info->sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	printf("Connecting...\n");
 	connect(soc_info->sockfd, res->ai_addr, res->ai_addrlen);
 	printf("Connected!\n");
 	header_size++;
 	send_req(header, soc_info, header_size, newsockfd);
-	
 }
 
 
